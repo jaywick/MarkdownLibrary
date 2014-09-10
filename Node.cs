@@ -11,48 +11,35 @@ namespace MarkdownLibrary
 {
     public class Node
     {
-        public bool IsLeaf { get; set; }
-        public string Name { get; set; }
-        public string Path { get; set; }
+        public bool IsLeaf
+        {
+            get { return FileSystemItem is FileInfo; }
+        }
+
+        public string Name
+        {
+            get { return FileSystemItem.Name; }
+        }
+
+        public ObservableCollection<Node> Items
+        {
+            get; set;
+        }
+
+        public FileSystemInfo FileSystemItem
+        {
+            get; private set;
+        }
 
         public Node()
         {
             Items = new ObservableCollection<Node>();
         }
 
-        public Node(string name)
+        public Node(FileSystemInfo fileSystemItem)
             : this()
         {
-            Name = name;
-        }
-
-        public ObservableCollection<Node> Items { get; set; }
-
-        public FileSystemInfo FileSystemItem
-        {
-            get
-            {
-                var path = System.IO.Path.Combine(Settings.Instance.Directory, Path);
-
-                if (IsLeaf)
-                {
-                    return new FileInfo(path);
-                }
-                else
-                {
-                    return new DirectoryInfo(path);
-                }
-            }
-        }
-
-        public bool IsTopLevel
-        {
-            get { return Level == 0; }
-        }
-
-        public int Level
-        {
-            get { return Path.Split('\\').Length; }
+            FileSystemItem = fileSystemItem;
         }
     }
 }

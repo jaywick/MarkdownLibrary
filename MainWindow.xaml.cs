@@ -13,18 +13,26 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Collections.ObjectModel;
+using MarkdownSharp;
 
 namespace MarkdownLibrary
 {
     public partial class MainWindow : Window
     {
         public Node Tree { get; set; }
+        private Markdown renderer;
 
         public MainWindow()
         {
             createTree();
             this.DataContext = this;
 
+            renderer = new MarkdownSharp.Markdown(new MarkdownOptions
+            {
+                AutoHyperlink = true,
+                AutoNewLines = true,
+            });
+            
             InitializeComponent();
         }
 
@@ -37,7 +45,7 @@ namespace MarkdownLibrary
         {
             var stack = new Stack<Tuple<DirectoryInfo, Node>>();
             
-            var rootNode = new Node(root.Name);
+            var rootNode = new Node(root);
             stack.Push(Tuple.Create(root, rootNode));
 
             while (stack.Any())
@@ -48,7 +56,7 @@ namespace MarkdownLibrary
 
                 foreach (var child in FileSystemHelper.GetSubdirectories(currentDirectory))
                 {
-                    var childNode = new Node(child.Name);
+                    var childNode = new Node(child);
                     currentNode.Items.Add(childNode);
 
                     if (child is DirectoryInfo)
@@ -57,11 +65,41 @@ namespace MarkdownLibrary
                 
                 foreach (var file in FileSystemHelper.GetFiles(currentDirectory, "*.md"))
                 {
-                    currentNode.Items.Add(new Node(file.Name));
+                    currentNode.Items.Add(new Node(file));
                 }
             }
 
             return rootNode;
+        }
+
+        private void TreeView_OnSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            var node = e.NewValue as Node;
+            
+            loadNote(node.IsLeaf ? node.FileSystemItem.FullName : null);
+        }
+
+        private void loadNote(string file)
+        {
+            if (file == null)
+            {
+                textSource.Text = "";
+                return;
+            }
+
+            textSource.Text = File.ReadAllText(file);
+        }
+
+        private void TextSource_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            webBrowser.NavigateToString(render(e.Source.ToString()));
+        }
+
+        private string render(string source)
+        {
+            var body = renderer.Transform(textSource.Text);
+            var style = Properties.Resources.ResourceManager.GetObject("css_style");
+            return string.Format("<html><head><style>{0}</style></head><body>{1}</body></html>", style, body);
         }
     }
 }

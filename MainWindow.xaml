@@ -9,7 +9,7 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <TreeView DataContext="{Binding Path=Tree}" ItemsSource="{Binding Path=Items}">
+        <TreeView DataContext="{Binding Path=Tree}" ItemsSource="{Binding Path=Items}" SelectedItemChanged="TreeView_OnSelectedItemChanged">
             <TreeView.Resources>
                 <Style TargetType="{x:Type TreeViewItem}">
                     <Setter Property="IsExpanded" Value="True"/>
@@ -24,7 +24,7 @@
                 <WebBrowser x:Name="webBrowser"></WebBrowser>
             </TabItem>
             <TabItem Header="Edit" BorderBrush="{x:Null}">
-                <TextBox x:Name="main" AcceptsReturn="True" TextWrapping="Wrap" BorderBrush="{x:Null}" FontFamily="Consolas"/>
+                <TextBox x:Name="textSource" AcceptsReturn="True" TextWrapping="Wrap" BorderBrush="{x:Null}" FontFamily="Consolas" TextChanged="TextSource_OnTextChanged"/>
             </TabItem>
         </TabControl>
     </Grid>
