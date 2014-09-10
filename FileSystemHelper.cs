@@ -26,7 +26,7 @@ namespace MarkdownLibrary
             return new FileInfo(Path.Combine(nextFolder.FullName, parts.Last()));
         }
 
-        public static IEnumerable<FileInfo> FindFiles(string directory, string pattern = "*.*")
+        public static IEnumerable<FileInfo> FindAllFiles(string directory, string pattern = "*.*")
         {
             var allFiles = Enumerable.Empty<FileInfo>();
 
@@ -36,10 +36,10 @@ namespace MarkdownLibrary
             while (stack.Any())
             {
                 var current = stack.Pop();
-                var files = getFiles(current, pattern);
+                var files = GetFiles(current, pattern);
                 allFiles = allFiles.Concat(files);
 
-                foreach (var subdirectory in getSubdirectories(current))
+                foreach (var subdirectory in GetSubdirectories(current))
                 {
                     stack.Push(subdirectory);
                 }
@@ -48,7 +48,7 @@ namespace MarkdownLibrary
             return allFiles;
         }
 
-        private static IEnumerable<FileInfo> getFiles(DirectoryInfo directory, string pattern)
+        public static IEnumerable<FileInfo> GetFiles(DirectoryInfo directory, string pattern)
         {
             try
             {
@@ -60,7 +60,7 @@ namespace MarkdownLibrary
             }
         }
 
-        private static IEnumerable<DirectoryInfo> getSubdirectories(DirectoryInfo directory)
+        public static IEnumerable<DirectoryInfo> GetSubdirectories(DirectoryInfo directory)
         {
             try
             {
@@ -70,6 +70,12 @@ namespace MarkdownLibrary
             {
                 return Enumerable.Empty<DirectoryInfo>();
             }
+        }
+
+        public static IEnumerable<FileSystemInfo> GetItems(DirectoryInfo directory, string filePattern = "*")
+        {
+            return GetSubdirectories(directory).OfType<FileSystemInfo>()
+                .Concat(GetFiles(directory, filePattern)).OfType<FileSystemInfo>();
         }
     }
 }

@@ -11,6 +11,9 @@
 
         <TreeView DataContext="{Binding Path=Tree}" ItemsSource="{Binding Path=Items}">
             <TreeView.Resources>
+                <Style TargetType="{x:Type TreeViewItem}">
+                    <Setter Property="IsExpanded" Value="True"/>
+                </Style>
                 <HierarchicalDataTemplate DataType="{x:Type local:Node}" ItemsSource="{Binding Items}">
                     <TextBlock Text="{Binding Name}"></TextBlock>
                 </HierarchicalDataTemplate>

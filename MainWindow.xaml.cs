@@ -30,12 +30,38 @@ namespace MarkdownLibrary
 
         private void createTree()
         {
-            Tree = new Node("Root");
+            Tree = PopulateTree(new DirectoryInfo(Settings.Instance.Directory));
+        }
 
-            foreach (var file in new DirectoryInfo(Settings.Instance.Directory).GetDirectories())
+        public static Node PopulateTree(DirectoryInfo root)
+        {
+            var stack = new Stack<Tuple<DirectoryInfo, Node>>();
+            
+            var rootNode = new Node(root.Name);
+            stack.Push(Tuple.Create(root, rootNode));
+
+            while (stack.Any())
             {
-                Tree.Items.Add(new Node(file.Name));
+                var current = stack.Pop();
+                var currentDirectory = current.Item1; 
+                var currentNode = current.Item2;
+
+                foreach (var child in FileSystemHelper.GetSubdirectories(currentDirectory))
+                {
+                    var childNode = new Node(child.Name);
+                    currentNode.Items.Add(childNode);
+
+                    if (child is DirectoryInfo)
+                        stack.Push(Tuple.Create(child, childNode));
+                }
+                
+                foreach (var file in FileSystemHelper.GetFiles(currentDirectory, "*.md"))
+                {
+                    currentNode.Items.Add(new Node(file.Name));
+                }
             }
+
+            return rootNode;
         }
     }
 }
